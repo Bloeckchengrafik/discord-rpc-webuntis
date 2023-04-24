@@ -13,7 +13,6 @@ try:
     from rich.console import Console
     from pypresence import Presence
 
-
     console = Console()
 
     uri: str = decode(Image.open('login_qr.png'))[0].data.decode("utf-8")
@@ -26,15 +25,17 @@ try:
         presence_id = f.read()
 
     pres = Presence(presence_id)
+    print("Connecting")
     pres.connect()
+    print("Connected")
 
     while True:
         with otp_login(
-            scname=login_data["school"][0],
-            server="https://"+login_data["url"][0],
-            username=login_data["user"][0],
-            token=totp.now(),
-            time=int(time.time()*1000)
+                scname=login_data["school"][0],
+                server="https://" + login_data["url"][0],
+                username=login_data["user"][0],
+                token=totp.now(),
+                time=int(time.time() * 1000)
         ) as session:
             session: webuntis.Session
             myself: StudentObject
@@ -55,6 +56,7 @@ try:
                         "name": "In Class",
                         "teach": entry.teachers[0]
                     })
+
                 except:
                     timetable_data.append({
                         "start": entry.start,
@@ -75,17 +77,14 @@ try:
                     now = entry
                     break
 
-            timetable_data.sort(key=lambda x: x["start"])
+            if now["end"]:
+                # noinspection PyTypeChecker
+                pres.update(state=now["name"], large_image="logo", small_image=now["type"], end=entry["end"].timestamp())
+            else:
+                pres.update(state=now["name"], large_image="logo", small_image=now["type"])
 
-            if now["end"] is None:
-                for entry in timetable_data:
-                    if datetime.datetime.now() < entry["start"]:
-                        now["end"] = entry["start"]
-                        break
-
-            # noinspection PyTypeChecker
-            pres.update(state=now["name"], large_image="logo", small_image=entry["type"], end=entry["end"].timestamp())
 
         time.sleep(10)
-except:
+except Exception as e:
+    print(e)
     exec(open(__file__).read())

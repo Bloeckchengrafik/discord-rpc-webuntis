@@ -1,0 +1,7 @@
+*.iml
+.idea/
+venv/
+env/
+.env
+login_qr.png
+.appid

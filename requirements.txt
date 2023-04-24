@@ -1,0 +1,6 @@
+webuntis
+pyzbar
+pyotp
+pillow
+rich
+pypresence
